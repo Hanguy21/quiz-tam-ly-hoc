@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz Tâm Lý Học Ứng Dụng – 206 Câu</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap');
+
+  :root {
+    --bg: #0f1624;
+    --surface: #1a2236;
+    --card: #212f47;
+    --border: #2d4066;
+    --accent: #4f8ef7;
+    --accent2: #7c5cfc;
+    --green: #22c55e;
+    --red: #ef4444;
+    --yellow: #f59e0b;
+    --text: #e2e8f0;
+    --muted: #8899b4;
+    --radius: 14px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Be Vietnam Pro', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, #1a2236 0%, #0f1624 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-icon {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
+  }
+  .header-title { font-size: 18px; font-weight: 700; }
+  .header-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* MAIN LAYOUT */
+  .container { max-width: 960px; margin: 0 auto; padding: 32px 20px; }
+
+  /* HOME SCREEN */
+  #home-screen { display: block; }
+  .home-hero {
+    text-align: center;
+    padding: 40px 20px 32px;
+    background: linear-gradient(180deg, #1e2f50 0%, transparent 100%);
+    border-radius: 20px;
+    margin-bottom: 32px;
+    border: 1px solid var(--border);
+  }
+  .home-hero h1 { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+  .home-hero h1 span { background: linear-gradient(90deg,var(--accent),var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .home-hero p { color: var(--muted); font-size: 15px; }
+
+  .quiz-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+  }
+  .quiz-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    cursor: pointer;
+    transition: all .2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .quiz-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transform: scaleX(0); transform-origin: left;
+    transition: transform .2s;
+  }
+  .quiz-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(79,142,247,.15); }
+  .quiz-card:hover::before { transform: scaleX(1); }
+  .quiz-num { font-size: 28px; font-weight: 800; color: var(--accent); margin-bottom: 4px; }
+  .quiz-name { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .quiz-info { font-size: 12px; color: var(--muted); }
+  .quiz-topics { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 4px; }
+  .topic-tag {
+    font-size: 10px; padding: 2px 8px;
+    background: rgba(79,142,247,.12); color: var(--accent);
+    border-radius: 20px; border: 1px solid rgba(79,142,247,.2);
+  }
+  .quiz-score-badge {
+    position: absolute; top: 12px; right: 12px;
+    font-size: 11px; font-weight: 700;
+    padding: 2px 8px; border-radius: 20px;
+    display: none;
+  }
+  .quiz-score-badge.show { display: block; }
+  .badge-good { background: rgba(34,197,94,.2); color: var(--green); }
+  .badge-mid { background: rgba(245,158,11,.2); color: var(--yellow); }
+  .badge-bad { background: rgba(239,68,68,.2); color: var(--red); }
+
+  /* QUIZ SCREEN */
+  #quiz-screen { display: none; }
+
+  .quiz-header {
+    display: flex; align-items: center; gap: 16px; margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .back-btn {
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--text); padding: 8px 16px; border-radius: 8px;
+    cursor: pointer; font-size: 14px; font-family: inherit;
+    display: flex; align-items: center; gap: 6px;
+    transition: all .15s;
+  }
+  .back-btn:hover { border-color: var(--accent); }
+  .quiz-title-bar { flex: 1; }
+  .quiz-title-bar h2 { font-size: 18px; font-weight: 700; }
+  .quiz-progress-info { font-size: 12px; color: var(--muted); }
+
+  .progress-bar-wrap { height: 4px; background: var(--border); border-radius: 2px; margin-bottom: 28px; }
+  .progress-bar-fill { height: 100%; background: linear-gradient(90deg,var(--accent),var(--accent2)); border-radius: 2px; transition: width .3s; }
+
+  /* QUESTION CARD */
+  .q-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    margin-bottom: 16px;
+  }
+  .q-number {
+    font-size: 11px; font-weight: 700; color: var(--accent);
+    text-transform: uppercase; letter-spacing: .08em; margin-bottom: 12px;
+  }
+  .q-text { font-size: 16px; font-weight: 600; line-height: 1.6; margin-bottom: 20px; }
+
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn {
+    display: flex; align-items: flex-start; gap: 12px;
+    background: var(--card); border: 1.5px solid var(--border);
+    border-radius: 10px; padding: 14px 16px;
+    cursor: pointer; text-align: left; transition: all .15s;
+    font-family: inherit; color: var(--text); font-size: 14px; line-height: 1.5;
+    width: 100%;
+  }
+  .option-btn:hover:not(:disabled) { border-color: var(--accent); background: rgba(79,142,247,.08); }
+  .opt-letter {
+    width: 28px; height: 28px; flex-shrink: 0;
+    background: rgba(255,255,255,.07); border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+  }
+  .option-btn.selected .opt-letter { background: var(--accent); }
+  .option-btn.correct { border-color: var(--green); background: rgba(34,197,94,.08); }
+  .option-btn.correct .opt-letter { background: var(--green); }
+  .option-btn.wrong { border-color: var(--red); background: rgba(239,68,68,.08); }
+  .option-btn.wrong .opt-letter { background: var(--red); }
+  .option-btn:disabled { cursor: default; }
+
+  /* NAV */
+  .nav-row {
+    display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+    margin-top: 20px; justify-content: space-between;
+  }
+  .nav-left { display: flex; gap: 10px; }
+  .btn {
+    padding: 10px 22px; border-radius: 9px; border: none;
+    font-family: inherit; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: all .15s;
+  }
+  .btn-primary { background: linear-gradient(135deg,var(--accent),var(--accent2)); color: #fff; }
+  .btn-primary:hover { opacity: .88; transform: translateY(-1px); }
+  .btn-outline { background: transparent; border: 1.5px solid var(--border); color: var(--text); }
+  .btn-outline:hover { border-color: var(--accent); }
+  .btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+
+  /* RESULT */
+  #result-screen { display: none; }
+  .result-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 20px; padding: 40px; text-align: center;
+    margin-bottom: 24px;
+  }
+  .result-score {
+    font-size: 64px; font-weight: 800;
+    background: linear-gradient(90deg,var(--accent),var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+  }
+  .result-label { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+  .result-sub { color: var(--muted); font-size: 14px; }
+  .result-stats {
+    display: flex; gap: 16px; justify-content: center; margin-top: 24px; flex-wrap: wrap;
+  }
+  .stat-box {
+    background: var(--card); border-radius: 12px; padding: 16px 24px; min-width: 120px;
+  }
+  .stat-val { font-size: 26px; font-weight: 800; margin-bottom: 4px; }
+  .stat-lbl { font-size: 12px; color: var(--muted); }
+
+  /* REVIEW */
+  .review-section { margin-top: 24px; }
+  .review-section h3 { font-size: 16px; font-weight: 700; margin-bottom: 16px; color: var(--muted); }
+  .review-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px; margin-bottom: 12px;
+  }
+  .review-item.correct-item { border-left: 3px solid var(--green); }
+  .review-item.wrong-item { border-left: 3px solid var(--red); }
+  .review-q { font-size: 14px; font-weight: 600; margin-bottom: 10px; }
+  .review-ans { font-size: 13px; margin-bottom: 4px; }
+  .review-ans span { font-weight: 600; }
+  .correct-ans { color: var(--green); }
+  .wrong-ans { color: var(--red); }
+
+  /* QUESTION NAV DOT */
+  .q-nav { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .q-dot {
+    width: 32px; height: 32px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600; cursor: pointer;
+    background: var(--card); border: 1.5px solid var(--border);
+    transition: all .1s; color: var(--muted);
+  }
+  .q-dot.answered { background: rgba(79,142,247,.15); border-color: var(--accent); color: var(--accent); }
+  .q-dot.current { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .q-dot:hover { border-color: var(--accent); }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .container { padding: 20px 12px; }
+    .q-card { padding: 20px; }
+    .result-score { font-size: 48px; }
+    .quiz-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-icon">🧠</div>
+  <div>
+    <div class="header-title">Tâm Lý Học Ứng Dụng</div>
+    <div class="header-sub">206 Câu Trắc Nghiệm · 7 Bộ Quiz</div>
+  </div>
+</div>
+
+<!-- HOME -->
+<div class="container">
+<div id="home-screen">
+  <div class="home-hero">
+    <h1>Ôn Tập <span>Tâm Lý Học</span></h1>
+    <p>Chọn một bộ quiz để bắt đầu luyện tập · Mỗi bộ gồm 30 câu hỏi</p>
+  </div>
+  <div class="quiz-grid" id="quiz-grid"></div>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz-screen">
+  <div class="quiz-header">
+    <button class="back-btn" onclick="goHome()">← Về trang chủ</button>
+    <div class="quiz-title-bar">
+      <h2 id="quiz-title-bar"></h2>
+      <div class="quiz-progress-info" id="quiz-prog-info"></div>
+    </div>
+  </div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+  </div>
+  
+  <!-- Question dots -->
+  <div class="q-nav" id="q-nav"></div>
+  <br>
+
+  <div class="q-card" id="q-card">
+    <div class="q-number" id="q-number"></div>
+    <div class="q-text" id="q-text"></div>
+    <div class="options" id="q-options"></div>
+  </div>
+
+  <div class="nav-row">
+    <div class="nav-left">
+      <button class="btn btn-outline" id="btn-prev" onclick="prevQ()">← Trước</button>
+      <button class="btn btn-outline" id="btn-next" onclick="nextQ()">Tiếp →</button>
+    </div>
+    <button class="btn btn-primary" id="btn-submit" onclick="submitQuiz()">Nộp bài</button>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="result-screen">
+  <div class="result-card">
+    <div class="result-score" id="res-score"></div>
+    <div class="result-label" id="res-label"></div>
+    <div class="result-sub" id="res-sub"></div>
+    <div class="result-stats">
+      <div class="stat-box">
+        <div class="stat-val" id="stat-correct" style="color:var(--green)"></div>
+        <div class="stat-lbl">Đúng</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="stat-wrong" style="color:var(--red)"></div>
+        <div class="stat-lbl">Sai</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="stat-skip" style="color:var(--yellow)"></div>
+        <div class="stat-lbl">Bỏ qua</div>
+      </div>
+    </div>
+  </div>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;">
+    <button class="btn btn-outline" onclick="goHome()">← Về trang chủ</button>
+    <button class="btn btn-primary" onclick="retakeQuiz()">🔄 Làm lại</button>
+    <button class="btn btn-outline" onclick="showReview()">📋 Xem đáp án</button>
+  </div>
+  <div class="review-section" id="review-section"></div>
+</div>
+</div>
+
+<script>
+// ==================== DATA ====================
+// Đáp án: a=0, b=1, c=2, d=3
+// Format: [câu hỏi, [đáp án A, B, C, D], đáp án đúng (0-3)]
+
+const allQuestions = [
+  // === BÀI 1: Công dụng tâm lí (1-19) ===
+  ["Trong các hiện tượng dưới đây, hiện tượng nào là tâm lí?",
+    ["Thần kinh căng thẳng như dây đàn sắp đứt","Tim đập như muốn nhảy ra khỏi lồng ngực","Ăn, ngủ đều kém","Bồn chồn như có hẹn với ai"], 3],
+  ["Tâm lí người là:",
+    ["Do một lực lượng siêu nhiên sinh ra","Do não sản sinh ra, tương tự như gan tiết ra mật","Sự phản ánh hiện thực khách quan vào não người qua lăng kính chủ quan","Cả a, b, c"], 2],
+  ["Hiện tượng nào cho thấy tâm lí tác động đến sinh lý?",
+    ["Lo lắng đến mất ngủ","Mệt mỏi không minh mẫn","Mắt kém tri giác kém","Ăn uống đầy đủ giúp cơ thể khỏe mạnh"], 0],
+  ["Hiện tượng nào cho thấy sinh lý có ảnh hưởng rõ rệt đến tâm lí?",
+    ["Tuyến nội tiết làm thay đổi tâm trạng","Lạnh làm run người","Buồn rầu làm ngưng trệ tiêu hóa","Thẹn làm đỏ mặt"], 0],
+  ["Tâm lí người có nguồn gốc từ:",
+    ["Não người","Hoạt động của cá nhân","Thế giới khách quan","Giao tiếp của cá nhân"], 2],
+  ["Những đứa trẻ do động vật nuôi từ nhỏ không có được tâm lí người vì:",
+    ["Các mối quan hệ xã hội quy định bản chất tâm lí người","Môi trường sống quy định bản chất tâm lí người","Các dạng hoạt động và giao tiếp quy định trực tiếp sự hình thành tâm lí người","Cả a, b, c"], 3],
+  ["Nhân tố tâm lí giữ vai trò cơ bản trong hoạt động của con người, bởi vì:",
+    ["Tâm lí có chức năng định hướng cho hoạt động","Tâm lí điều khiển, kiểm tra và điều chỉnh hoạt động","Tâm lí là động lực thúc đẩy con người hoạt động","Cả a, b, c"], 3],
+  ["Đâu không phải là chức năng của các hiện tượng tâm lí người?",
+    ["Định hướng hoạt động","Điều chỉnh hoạt động","Điều khiển hoạt động","Dự đoán hoạt động"], 3],
+  ["\"Tâm lý là động lực thôi thúc, lôi cuốn con người hoạt động, khắc phục mọi khó khăn vươn tới mục đích\". Chức năng nào đã được đề cập?",
+    ["Động lực","Điều khiển","Điều chỉnh","Định hướng"], 0],
+  ["Phản ánh tâm lí người là một loại phản ánh đặc biệt vì:",
+    ["Hình ảnh tâm lí là sự phản ánh hiện thực khách quan vào não","Hình ảnh tâm lí là bản sao chép về thế giới khách quan","Hình ảnh tâm lí mang tính sinh động, sáng tạo","Hình ảnh tâm lí là dấu vết của thế giới khách quan"], 2],
+  ["Hiện tượng nào dưới đây là trạng thái tâm lí?",
+    ["Lành lạnh","Căng thẳng","Nhạy cảm","Yêu đời"], 1],
+  ["Trong các tình huống, đâu là quá trình tâm lí?",
+    ["Thoáng thấy một vật gì đo đỏ lướt qua","Cô ta do dự trước quyết định học thêm Pháp văn","Chị ấy luôn thích thú học môn thể dục thẩm mỹ","Tôi chăm chú nghe giảng bài"], 3],
+  ["Những hiện tượng nào là thuộc tính tâm lí?",
+    ["Nghe và nghĩ về những điều thầy giảng","Chăm chú ghi chép bài","Trung thực, không quay cóp khi làm bài thi","Giải bài tập"], 2],
+  ["Hiện tượng nào dưới đây là ý thức?",
+    ["Học sinh làm tính nhân nhanh chóng không nhớ tới quy tắc","Học sinh quyết định thi vào Sư phạm và giải thích vì em rất yêu trẻ","Trẻ sơ sinh nắm chặt ngón tay người lớn khi chạm vào bàn tay","Khi say rượu Minh nói ra điều tâm sự mà trước đây chính Minh còn mơ hồ"], 1],
+  ["Khi đi du lịch, dù đến cùng địa điểm nhưng mỗi lần đến lại mang cảm xúc khác nhau. Điều này chứng tỏ:",
+    ["Tâm lý người mang tính tích cực","Tâm lý người mang tính tiêu cực","Tâm lý người mang bản chất xã hội - văn hóa","Tâm lý người mang tính chủ thể"], 3],
+  ["Các quá trình tâm lí là những hiện tượng tâm lí có đặc điểm nào?",
+    ["Thời gian tương đối ngắn, có mở đầu, diễn biến, kết thúc tương đối rõ ràng","Thời gian tương đối ngắn, không mở đầu, không diễn biến, kết thúc không rõ ràng","Thời gian tương đối ngắn, không mở đầu, diễn biến, kết thúc tương đối rõ ràng","Thời gian tương đối ngắn, có mở đầu, diễn biến, kết thúc không rõ ràng"], 0],
+  ["Thuộc tính tâm lí mang những đặc điểm nào?",
+    ["Không thay đổi","Tương đối ổn định, bền vững","Thay đổi theo thời gian","Đặc trưng cho mỗi cá thể và có tính độc đáo"], 1],
+  ["Hiện tượng nào dưới đây là quá trình tâm lí?",
+    ["Giải bài tập","Chăm chú ghi chép bài","Hồi hộp khi đi thi","Trung thực, không quay cóp khi làm bài thi"], 0],
+  ["Hiện tượng nào dưới đây là trạng thái tâm lí?",
+    ["Chăm chú nghe giảng bài","Tập thể dục buổi sáng","Thoáng thấy một vật gì đo đỏ lướt qua","Chị ấy luôn thích thú học môn thể dục thẩm mĩ"], 0],
+
+  // === BÀI 2: Cảm giác - Tri giác (20-54) ===
+  ["Đặc điểm thể hiện sự khác biệt căn bản của tri giác so với cảm giác là:",
+    ["Phản ánh từng thuộc tính bên ngoài của sự vật","Phản ánh trọn vẹn các thuộc tính bề ngoài","Sự phản ánh khi sự vật tác động trực tiếp vào giác quan","Sự phản ánh của chủ thể đối với thế giới bên ngoài"], 1],
+  ["\"Hình ảnh trực quan mà tri giác đem lại bao giờ cũng thuộc về một sự vật hiện tượng nhất định\" là biểu hiện quy luật nào?",
+    ["Tính đối tượng","Tính lựa chọn","Tính ý nghĩa","Tính ổn định"], 0],
+  ["Phản ánh một vài đối tượng trong vô số sự vật xung quanh là biểu hiện của quy luật tri giác nào?",
+    ["Tính lựa chọn","Tính ý nghĩa","Tính ổn định","Tổng giác"], 0],
+  ["Khả năng phản ánh sự vật một cách không đổi khi điều kiện tri giác bị thay đổi là biểu hiện của quy luật nào?",
+    ["Tính ý nghĩa","Tính ổn định","Tổng giác","Ảo ảnh tri giác"], 1],
+  ["Sự phản ánh sai lệch các sự vật, hiện tượng một cách khách quan là biểu hiện quy luật nào?",
+    ["Tính đối tượng","Tính lựa chọn","Tổng giác","Ảo ảnh tri giác"], 3],
+  ["Tri giác chịu ảnh hưởng nội dung đời sống tâm lý và đặc điểm nhân cách là biểu hiện quy luật nào?",
+    ["Tính ý nghĩa","Tính ổn định","Tổng giác","Ảo giác"], 2],
+  ["Người lái ôtô thấy vật tiến nhanh tựa như phình to nhưng hiểu đó là ảo ảnh. Đó là biểu hiện quy luật nào?",
+    ["Tính lựa chọn của tri giác","Tính ổn định của tri giác","Tính đối tượng của tri giác","Tính ý nghĩa của tri giác"], 1],
+  ["Sau khi tiếp nhận kích thích, cơ quan thị giác đưa thông tin lên não dưới dạng xung thần kinh nào?",
+    ["Sóng âm thanh","Sóng ánh sáng","Phản ứng hóa học","Áp lực, nhiệt độ"], 1],
+  ["Loại cảm giác nào thuộc nhóm cảm giác bên ngoài?",
+    ["Cảm giác vận động","Cảm giác nén","Cảm giác sờ mó","Cảm giác rung"], 2],
+  ["\"Hình ảnh trực quan của tri giác bao giờ cũng thuộc về một sự vật, hiện tượng nhất định\" là đặc điểm quy luật nào?",
+    ["Tính ý nghĩa","Tính đối tượng","Tính lựa chọn","Ảo ảnh tri giác"], 1],
+  ["Ngưỡng cảm giác sai biệt được hiểu là:",
+    ["Cường độ kích thích tối thiểu gây ra cảm giác","Cường độ kích thích tối đa gây ra cảm giác","Mức độ chênh lệch tối thiểu về cường độ để phân biệt được chúng","Mức độ chênh lệch tối đa về cường độ để phân biệt được chúng"], 2],
+  ["Khi đi từ chỗ sáng vào chỗ tối, lúc đầu chưa nhìn thấy, sau vài giây nhìn rõ hơn. Hiện tượng này do:",
+    ["Tăng độ nhạy cảm của cảm giác nhìn","Giảm độ nhạy cảm của cảm giác nhìn","Không thay đổi","Tất cả đáp án trên"], 0],
+  ["Giáo viên dùng bút đỏ để chấm bài là ứng dụng quy luật nào của tri giác?",
+    ["Quy luật tính lựa chọn","Quy luật ảo ảnh tri giác","Quy luật tính ý nghĩa","Quy luật tính tổng giác"], 0],
+  ["Ăn mãi một món dù ngon đến đâu cũng thấy bình thường. Đó là do quy luật nào?",
+    ["Thích ứng","Thích nghi","Tác động qua lại","Ngưỡng cảm giác"], 0],
+  ["Hãy tìm màu phấn tương phản nhất khi viết trên bảng màu xanh, màu đen:",
+    ["Phấn ghi","Phấn trắng","Phấn đỏ","Phấn tím"], 1],
+  ["Trong giai đoạn nhận thức cảm tính, các quá trình tâm lí phản ánh sự vật ở mức độ nào?",
+    ["Mối liên hệ có tính bản chất","Mối liên hệ có tính quy luật","Thuộc tính bên trong, khái quát","Thuộc tính bề ngoài, cụ thể"], 3],
+  ["Tri giác là quá trình tâm lí phản ánh những thuộc tính nào?",
+    ["Mối liên hệ mang tính bản chất","Mối quan hệ mang tính quy luật","Từng thuộc tính riêng lẻ bề ngoài","Trọn vẹn các thuộc tính bề ngoài"], 3],
+  ["\"Quá trình nhận thức phản ánh một cách riêng lẻ từng thuộc tính của sự vật\" đề cập đến hiện tượng nào?",
+    ["Tư duy","Tưởng tượng","Tri giác","Cảm giác"], 3],
+  ["\"Hình ảnh trực quan của tri giác bao giờ cũng thuộc về một sự vật hiện tượng nhất định\" là biểu hiện quy luật nào?",
+    ["Tính đối tượng","Tính lựa chọn","Tính ý nghĩa","Tính ổn định"], 0],
+  ["\"Mọi tác động trong dạy học phải đủ ngưỡng thì mới mang lại hiệu quả\" là ứng dụng quy luật nào của cảm giác?",
+    ["Tác động qua lại của các cảm giác","Ngưỡng cảm giác","Thích ứng của cảm giác","Không đủ thông tin để xác định"], 1],
+  ["Nhà thiết kế thời trang phối đen với trắng dựa trên quy luật nào trong cảm giác?",
+    ["Quy luật tương phản đồng thời","Quy luật về sự thích ứng","Quy luật về ngưỡng cảm giác","Quy luật tương phản nối tiếp"], 0],
+
+  // === TIẾP BÀI 2 (41-54) + BÀI 3 CHÚ Ý (1-9) ===
+  ["Khi đèn phòng vụt tắt, mắt không nhìn thấy gì. Quy luật nào của cảm giác?",
+    ["Quy luật ngưỡng cảm giác","Quy luật thích ứng của cảm giác","Quy luật tác động qua lại của các cảm giác","Quy luật thích nghi cảm giác"], 1],
+  ["Cảm giác từ sóng âm phản ánh thuộc tính của âm thanh đến tai người là loại cảm giác nào?",
+    ["Cảm giác nhìn (Thị giác)","Cảm giác ngửi (Khứu giác)","Cảm giác nghe (Thính giác)","Cảm giác nếm (Vị giác)"], 2],
+  ["\"Quá trình nhận thức phản ánh riêng lẻ từng thuộc tính khi chúng tác động vào giác quan ta\" là hiện tượng nào?",
+    ["Tư duy","Tưởng tượng","Tri giác","Cảm giác"], 3],
+  ["\"Quá trình nhận thức phản ánh trọn vẹn từng thuộc tính khi chúng tác động vào giác quan ta\" là hiện tượng nào?",
+    ["Tư duy","Tưởng tượng","Tri giác","Cảm giác"], 2],
+  ["Trong hình, một số người nhìn thấy cây trước, một số thấy sư tử, khỉ đột. Đây là quy luật nào của tri giác?",
+    ["Tính đối tượng","Tính lựa chọn","Tính ý nghĩa","Tính ổn định"], 1],
+  ["Cách hiểu nào đúng với ngưỡng cảm giác?",
+    ["Ngưỡng cảm giác là giới hạn mà ở đó kích thích gây được cảm giác","Ngưỡng cảm giác không thay đổi trong cuộc sống","Mỗi giác quan có cảm giác như nhau ở tất cả mọi người","Cả a, b, c"], 0],
+  ["Khi tắm nước lạnh, ban đầu cảm thấy lạnh nhưng sau không cảm thấy lạnh nhiều. Quy luật nào?",
+    ["Quy luật ngưỡng","Quy luật thích ứng","Quy luật tác động qua lại giữa các cảm giác","Không có cơ sở xác định"], 1],
+  ["Trong hình, bạn biết cô gái không phải người tý hon. Quy luật nào của tri giác?",
+    ["Tính đối tượng","Tính lựa chọn","Tính ý nghĩa","Tính ổn định"], 3],
+  ["Nút bật/tắt quạt điện thường có màu khác biệt so với các nút còn lại. Quy luật nào được dùng?",
+    ["Tính ảo ảnh của tri giác","Tính tổng giác của tri giác","Tính lựa chọn của tri giác","Tất cả đáp án trên"], 2],
+  ["Đặc điểm đúng với quá trình cảm giác của con người?",
+    ["Sự phản ánh từng thuộc tính riêng lẻ bên ngoài của sự vật","Sự phản ánh trọn vẹn các thuộc tính bên ngoài","Sự phản ánh của chủ thể đối với thế giới bên ngoài","Sự hoạt động phối hợp của một loạt các cơ quan phân tích"], 0],
+
+  // === BÀI 3: CHÚ Ý ===
+  ["\"Khả năng duy trì lâu dài chú ý vào một hay một số đối tượng\". Thuộc tính nào đã mô tả?",
+    ["Sự tập trung của chú ý","Sự bền vững của chú ý","Sự phân phối chú ý","Sự phân tán chú ý"], 1],
+  ["Loại chú ý nào không cần sự nỗ lực của bản thân?",
+    ["Chú ý có chủ định","Chú ý không chủ định","Chú ý sau chủ định","Chú ý trước chủ định"], 1],
+  ["Điều kiện cần thiết để làm nảy sinh chú ý có chủ định?",
+    ["Độ mới lạ của kích thích","Sự tương phản của tác nhân kích thích","Sử dụng các tâm thế đang có ở chủ thể","Xác định nhiệm vụ cần thực hiện để đạt mục đích tự giác"], 3],
+  ["Các hiện tượng \"chăm chú nhìn, lắng tai nghe, tập trung suy nghĩ\" là biểu hiện của hiện tượng tâm lí nào?",
+    ["Xúc cảm, tình cảm","Trí nhớ","Cảm giác","Chú ý"], 3],
+  ["Các nhà thiết kế quảng cáo thường quan tâm đến yếu tố nào để thu hút sự chú ý?",
+    ["Độ tinh xảo của sản phẩm","Độ mới lạ, độc đáo","Độ thông dụng của sản phẩm","Độ đặc biệt của sản phẩm"], 1],
+  ["Các thuộc tính cơ bản của chú ý gồm:",
+    ["Tập trung, bền bỉ, phân tán và di chuyển","Tập trung, bền vững, phân tán và di chuyển","Tập trung, bền vững, phân phối và di chuyển","Tập trung, bền bỉ, phân phối và di chuyển"], 2],
+  ["\"Chú ý không có mục đích tự giác, không cần nỗ lực, chủ yếu do tác động bên ngoài gây ra\". Là loại chú ý nào?",
+    ["Chú ý không chủ định","Chú ý có chủ định","Chú ý sau khi có chủ định","Cả 3 loại chú ý trên"], 0],
+  ["Loại chú ý cần có chủ đích, mục đích định trước và sự nỗ lực của bản thân là:",
+    ["Chú ý không chủ định","Chú ý có chủ định","Chú ý sau khi có chủ định","Cả 3 loại chú ý trên"], 1],
+  ["\"Vốn là chú ý có chủ định nhưng không đòi hỏi sự căng thẳng ý chí\" là loại chú ý nào?",
+    ["Chú ý không chủ định","Chú ý có chủ định","Chú ý sau khi có chủ định","Cả 3 loại chú ý trên"], 2],
+
+  // === BÀI 4: TRÍ NHỚ ===
+  ["Bộ nhớ nào có khả năng lưu giữ thông tin gần như không giới hạn?",
+    ["Trí nhớ giác quan","Trí nhớ ngắn hạn","Trí nhớ dài hạn","Tất cả các bộ nhớ"], 2],
+  ["\"Quá trình tâm lí phản ánh những kinh nghiệm đã có bằng cách ghi nhớ, giữ gìn và làm xuất hiện lại những điều đã trải qua\". Hiện tượng nào?",
+    ["Trí nhớ","Tưởng tượng","Tri giác","Tư duy"], 0],
+  ["Trí nhớ nào sẽ được sử dụng để lưu trữ thông tin trong thời gian dài?",
+    ["Trí nhớ giác quan","Trí nhớ làm việc","Trí nhớ dài hạn","Cả 3 loại trí nhớ trên"], 2],
+  ["Ghi nhớ không có mục đích đặt ra từ trước là loại ghi nhớ nào?",
+    ["Ghi nhớ không chủ định","Ghi nhớ có chủ định","Ghi nhớ logic","Ghi nhớ máy móc"], 0],
+  ["Mệnh đề đúng với trí nhớ:",
+    ["Biểu tượng của nó mang tính sáng tạo","Biểu tượng được tạo ra từ hình ảnh thu được từ tri giác","Sản phẩm là biểu tượng","Phản ánh sự vật khi không còn tác động trực tiếp vào giác quan"], 3],
+  ["Loại trí nhớ nào đúng với trí nhớ vận động?",
+    ["Nhớ về các động tác của một bài thể dục","Nhớ về phong cảnh đẹp, mùi thơm","Nhớ công thức toán bằng cách giải bài tập","Nhớ giờ bắt đầu và địa điểm buổi nói chuyện"], 0],
+  ["Loại trí nhớ nào đúng với trí nhớ xúc cảm?",
+    ["Sự tái mặt hay đỏ mặt khi nhớ đến kỉ niệm cũ","Nhớ về phong cảnh đẹp, mùi thơm","Nhớ ý chính của đoạn tài liệu học tập","Nhớ được kiến thức trong khi làm bài thi"], 0],
+  ["Loại trí nhớ nào đúng với trí nhớ từ ngữ - logic?",
+    ["Nhớ ý chính của đoạn tài liệu học tập","Nhớ công thức toán bằng cách giải bài tập","Nhớ giờ bắt đầu và địa điểm buổi nói chuyện","Nhớ được kiến thức trong khi làm bài thi"], 0],
+  ["Loại trí nhớ nào đúng với trí nhớ hình ảnh?",
+    ["Nhớ về phong cảnh đẹp, mùi thơm","Sự tái mặt hay đỏ mặt khi nhớ đến kỉ niệm cũ","Học sinh nhớ ánh mắt của cô giáo khi giảng bài","Nhớ giờ bắt đầu và địa điểm buổi nói chuyện"], 0],
+  ["Đặc điểm không phù hợp với quá trình tư duy:",
+    ["Phản ánh những hình ảnh đã xảy ra trong quá khứ","Nảy sinh trước các tình huống có vấn đề","Sử dụng nguyên liệu của nhận thức cảm tính","Là quá trình nhận thức đi tìm cái mới"], 0],
+  ["Tư duy là quá trình phản ánh các thuộc tính nào của sự vật, hiện tượng?",
+    ["Riêng lẻ bề ngoài","Trọn vẹn bề ngoài","Bản chất, mối liên hệ có tính quy luật mà ta đã biết","Bản chất, mối liên hệ có tính quy luật mà trước đó ta chưa biết"], 3],
+
+  // === BÀI 5: TƯ DUY - TƯỞNG TƯỢNG ===
+  ["Hành động giúp người học phát hiện logic của đối tượng, điểm xuất phát lĩnh hội khái niệm là:",
+    ["Phân tích","Mô hình hóa","Cụ thể hóa","Kiểm tra đánh giá"], 0],
+  ["Điều kiện nào không cần thiết để tình huống làm nảy sinh tư duy?",
+    ["Tình huống phải quen thuộc, không xa lạ với cá nhân","Chứa vấn đề mà hiểu biết cũ không giải quyết được","Cá nhân nhận thức được tình huống","Vấn đề liên quan đến kinh nghiệm của cá nhân"], 0],
+  ["Áp dụng \"thử - sai\", Nam xác định được giờ xe bus đến. Điều này nhấn mạnh đến quá trình nào?",
+    ["Tưởng tượng","Tư duy","Cảm giác","Tri giác"], 1],
+  ["Quả táo rơi giúp Newton tìm ra định luật vạn vật hấp dẫn. Chứng minh đặc điểm nào của tư duy?",
+    ["Tính trừu tượng","Tính khái quát","Tư duy liên hệ chặt chẽ với nhận thức cảm tính","Tư duy liên hệ chặt chẽ với ngôn ngữ"], 2],
+  ["Thao tác nào phân chia đối tượng nhận thức thành các bộ phận thành phần khác nhau?",
+    ["Phân tích","Tổng hợp","Khái quát","So sánh"], 0],
+  ["Thao tác nào hợp nhất các thành phần đã tách rời thành một chỉnh thể?",
+    ["Phân tích","Tổng hợp","Khái quát","So sánh"], 1],
+  ["Thao tác nào xác định sự giống và khác nhau giữa các đối tượng nhận thức?",
+    ["Phân tích","Tổng hợp","Khái quát","So sánh"], 3],
+  ["Cố gắng dùng lý thuyết để giải thích tại sao nước biển có màu xanh. Nhấn mạnh đến quá trình nào?",
+    ["Tưởng tượng","Tư duy","Cảm giác","Tri giác"], 1],
+  ["\"Quá trình nhận thức phản ánh những thuộc tính bản chất, mối liên hệ có tính quy luật mà trước đó ta chưa biết\". Là hiện tượng nào?",
+    ["Tư duy","Tưởng tượng","Tri giác","Cảm giác"], 0],
+  ["Người lao động chọn con đường ngắn nhất để đi đến nơi công sở. Loại tư duy nào?",
+    ["Tư duy hình ảnh cụ thể","Tư duy thực hành","Tư duy trừu tượng","Tư duy lí luận"], 1],
+  ["Trẻ em làm toán bằng cách dùng tay di chuyển các đối tượng cụ thể. Loại tư duy nào?",
+    ["Tư duy trực quan - hành động","Tư duy trực quan - hình ảnh","Tư duy trừu tượng","Tư duy lí luận"], 0],
+
+  // === MỨC KHÁ - BÀI 1 TIẾP ===
+  ["Đặc điểm chỉ đúng với tư duy:",
+    ["Sản phẩm phản ánh là khái niệm khoa học","Sản phẩm phản ánh là các biểu tượng mới","Phản ánh riêng lẻ các thuộc tính của sự vật","Phản ánh khi có tác động trực tiếp của sự vật vào cảm giác"], 0],
+  ["Đặc điểm chỉ đúng với tư duy:",
+    ["Xuất hiện khi dữ liệu rõ ràng, đầy đủ","Tạo ra biểu tượng mới từ biểu tượng của trí nhớ","Cho phép 'nhảy cóc' qua một số giai đoạn","Xây dựng hoặc tái tạo hình ảnh mà quá khứ chưa từng tri giác"], 2],
+  ["Đặc điểm chỉ đúng với tư duy:",
+    ["Sản phẩm tạo ra là các khái niệm, quy luật","Sản phẩm tạo ra là các biểu tượng","Sáng tạo hình ảnh mới bằng thủ thuật đặc biệt","Xây dựng hoặc tái tạo hình ảnh mà quá khứ chưa từng tri giác"], 0],
+  ["Mệnh đề đúng với cả tư duy và tưởng tượng:",
+    ["Là quá trình nhận thức lí tính","Xuất hiện khi dữ liệu rõ ràng, đầy đủ","Sản phẩm là khái niệm khoa học","Cho phép 'nhảy cóc' qua một số giai đoạn"], 0],
+  ["\"Quá trình nhận thức phản ánh những cái chưa có trong kinh nghiệm bằng cách xây dựng hình ảnh mới từ biểu tượng đã có\". Hiện tượng nào?",
+    ["Cảm giác","Tư duy","Tưởng tượng","Tri giác"], 2],
+  ["Đặc điểm chỉ đúng với tưởng tượng:",
+    ["Xuất hiện khi tính bất định lớn (dữ liệu không rõ, không đầy đủ)","Xuất hiện khi tính bất định ít (dữ liệu rõ ràng, đầy đủ)","Tìm ra cái mới bằng cách tiến hành thao tác trí tuệ","Tạo sản phẩm bằng cách sắp xếp khái niệm theo cấu trúc mới"], 0],
+  ["Đặc điểm chỉ đúng với tưởng tượng:",
+    ["Tạo sản phẩm bằng cách sắp xếp biểu tượng theo cấu trúc mới","Tạo sản phẩm là những kinh nghiệm đã từng tri giác","Phản ánh riêng lẻ các thuộc tính của sự vật","Phản ánh dấu hiệu chung và bản chất chính xác và chặt chẽ"], 0],
+  ["\"Tạo ra hình ảnh hoặc chương trình hành vi không được thực hiện hoặc không thể thực hiện\". Loại tưởng tượng nào?",
+    ["Tưởng tượng tích cực","Tưởng tượng tiêu cực","Ước mơ","Lý tưởng"], 1],
+  ["\"Tạo ra hình ảnh nhằm đáp ứng nhu cầu, kích thích tính tích cực của con người\". Loại tưởng tượng nào?",
+    ["Tưởng tượng tích cực","Tưởng tượng tiêu cực","Ước mơ","Lý tưởng"], 0],
+  ["\"Tượng nhân sư\" ở Giza nhấn mạnh đến cách tưởng tượng nào?",
+    ["Nhấn mạnh","Chắp ghép","Liên hợp","Điển hình hóa"], 1],
+  ["Ý nào không phản ánh đúng vai trò của tư duy đối với con người?",
+    ["Giúp con người hành động có ý thức","Không bao giờ sai lầm trong nhận thức","Mở rộng vô hạn phạm vi nhận thức","Giúp con người vượt khỏi thích nghi thụ động"], 1],
+
+  // === MỨC KHÁ - BÀI 1 CÔNG DỤNG TÂM LÍ ===
+  ["Tư duy là quá trình phản ánh các thuộc tính nào của sự vật?",
+    ["Riêng lẻ bề ngoài","Trọn vẹn bề ngoài","Bản chất, mối liên hệ có tính quy luật mà ta đã biết","Bản chất, mối liên hệ có tính quy luật mà trước đó ta chưa biết"], 3],
+  ["Sản phẩm của quá trình tư duy là gì?",
+    ["Biểu tượng mới","Biểu tượng đã có","Hình ảnh","Lập luận, phán đoán, suy luận"], 3],
+  ["Học sinh xếp cá voi vào loài cá vì sống ở dưới nước. Không dùng thao tác tư duy nào?",
+    ["Phân tích","Trừu tượng hóa","So sánh","Tổng hợp"], 1],
+  ["Sự đổi mới sáng tạo về các loại bút viết nhấn mạnh đến cách tưởng tượng nào?",
+    ["Nhấn mạnh","Chắp ghép","Liên hợp","Loại suy"], 2],
+  ["Sự đổi mới sáng tạo (thêm nhiều chức năng) nhấn mạnh đến cách tưởng tượng nào?",
+    ["Nhấn mạnh","Chắp ghép","Liên hợp","Thay đổi kích thước, số lượng"], 3],
+  ["Nhà hình chiếc giày nhấn mạnh đến cách tưởng tượng nào?",
+    ["Loại suy","Chắp ghép","Liên hợp","Điển hình hóa"], 1],
+  ["Kỹ sư chế tạo tàu dựa theo cấu tạo da cá heo nhấn mạnh đến cách tưởng tượng nào?",
+    ["Điển hình hoá","Liên hợp","Chắp ghép","Loại suy"], 3],
+  ["Robot bay mô phỏng chuyển động của chim/bướm nhấn mạnh đến cách tưởng tượng nào?",
+    ["Loại suy","Chắp ghép","Liên hợp","Điển hình hóa"], 0],
+  ["\"Tạo ra hình ảnh chói lọi, rực sáng của tương lai mong muốn, thúc đẩy cá nhân vươn lên\" là loại tưởng tượng nào?",
+    ["Tưởng tượng tích cực","Tưởng tượng tiêu cực","Ước mơ","Lý tưởng"], 3],
+
+  // === MỨC KHÁ - BÀI 1 (106-124) ===
+  ["Hiện tượng sinh lí và hiện tượng tâm lí thường:",
+    ["Diễn ra song song trong não","Đồng nhất với nhau","Có quan hệ chặt chẽ với nhau","Có quan hệ chặt chẽ với nhau, tâm lí có cơ sở vật chất là não bộ"], 3],
+  ["Điều kiện cần và đủ để có hiện tượng tâm lí người là:",
+    ["Có thế giới khách quan và não","Thế giới khách quan tác động vào não và não hoạt động bình thường","Thế giới khách quan tác động vào não","Não hoạt động bình thường"], 1],
+  ["Hành vi truy tìm dấu vết tội phạm của chó nghiệp vụ là hành vi nào?",
+    ["Bản năng","Kỹ xảo","Trí tuệ","Kỹ thuật"], 1],
+  ["Hiện tượng nào là thuộc tính tâm lí?",
+    ["Học sinh B luôn thẳng thắn lên án các bạn không trung thực trong thi cử","Học sinh C cảm thấy hài lòng khi trình bày đúng kiến thức","Nghe và nghĩ về những điều thầy giảng","Tim đập như muốn nhảy ra khỏi lồng ngực"], 0],
+  ["Nhà kinh doanh cần nghiên cứu môi trường xã hội của người tiêu dùng dựa vào cơ sở nào?",
+    ["Tâm lý người do thượng đế sinh ra","Tâm lý người do não tiết ra","Tâm lý người có nguồn gốc tự nhiên","Tâm lý người có nguồn gốc xã hội"], 3],
+  ["Nhân tố nào là quan trọng nhất trong sự hình thành tự ý thức bản thân?",
+    ["Hoạt động của cá nhân","Giao tiếp với người khác","Cá nhân tự nhận thức, tự tỏ thái độ, tự phân tích và điều khiển bản thân","Tiếp thu ý thức xã hội và nền văn hóa"], 2],
+  ["Khi hình thành tâm lí con người, cần nghiên cứu hoàn cảnh môi trường là vì:",
+    ["Tâm lý người có nguồn gốc là thế giới tự nhiên","Tâm lý người có nguồn gốc là thế giới khách quan","Tâm lý người mang tính chủ thể","Tâm lý người sẵn có từ khi sinh ra"], 1],
+  ["Hoạt động học ở người học hướng vào làm thay đổi:",
+    ["Đối tượng của hoạt động học","Khách thể của hoạt động học","Động cơ của hoạt động học","Chủ thể của hoạt động học"], 3],
+  ["\"Giao tiếp được thực hiện bằng các tín hiệu phi ngôn ngữ: qua cử chỉ, điệu bộ, nét mặt\". Là cách phân loại nào?",
+    ["Giao tiếp vật chất","Giao tiếp phi ngôn ngữ","Giao tiếp không chính thức","Giao tiếp chính thức"], 1],
+  ["\"Giao tiếp được thực hiện thông qua các hành động với vật thể\". Là cách phân loại nào?",
+    ["Giao tiếp vật chất","Giao tiếp phi ngôn ngữ","Giao tiếp không chính thức","Giao tiếp chính thức"], 0],
+  ["Trường hợp nào dưới đây là sự giao tiếp?",
+    ["Em bé đang ngắm cảnh đẹp thiên nhiên","Con khỉ gọi bầy","Em bé vuốt ve, trò chuyện với chú mèo","Cô giáo giảng bài"], 3],
+
+  // === TIẾP MỨC KHÁ ===
+  ["Trường hợp nào là giao tiếp?",
+    ["Con khỉ đầu đàn hú gọi các con khác","Người chiến sĩ biên phòng điều khiển chó tuần tra","Hai con khỉ bắt chấy cho nhau","Hai em học sinh truy bài cho nhau"], 3],
+  ["Ngôn ngữ là:",
+    ["Hiện tượng tâm lí cá nhân","Quá trình giao tiếp xã hội","Mang dấu ấn cá nhân rõ rệt","Một hệ thống kí hiệu từ ngữ"], 3],
+  ["Tiếng kêu của động vật dùng để trao đổi tín hiệu. Tiếng kêu đó được hiểu là:",
+    ["Không phải là ngôn ngữ","Là loại ngôn ngữ riêng","Là loại ngôn ngữ đặc biệt","Là ngôn ngữ tượng thanh"], 0],
+  ["Tâm lí người khác xa tâm lí động vật ở luận điểm nào?",
+    ["Tâm lí người là kết quả của quá trình phản ánh hiện thực","Tâm lí người có tính chủ thể","Tâm lí người mang tính bản năng","Tâm lí người có bản chất xã hội và mang tính lịch sử"], 3],
+  ["Hình ảnh tâm lí mang tính chủ thể được cắt nghĩa bởi:",
+    ["Sự khác nhau về môi trường sống","Sự phong phú của các mối quan hệ xã hội","Đặc điểm riêng về hệ thần kinh, hoàn cảnh sống và tính tích cực hoạt động","Tính tích cực hoạt động khác nhau"], 2],
+  ["Các hiện tượng tâm lí diễn ra trong thời gian dài, không có mở đầu, diễn biến và kết thúc rõ ràng là:",
+    ["Quá trình tâm lí","Trạng thái tâm lí","Thuộc tính tâm lí","Không đủ cơ sở xác định rõ ràng"], 1],
+  ["Thuộc tính tâm lí là những hiện tượng tâm lí:",
+    ["Không thay đổi","Thay đổi theo thời gian","Tương đối ổn định và bền vững","Tính bền vững và bất biến"], 2],
+  ["Các chỉ dẫn đầy đủ ở thiết bị máy móc được ứng dụng quy luật nào trong tri giác?",
+    ["Quy luật lựa chọn","Quy luật trọn vẹn","Quy luật ý nghĩa","Quy luật tính đối tượng"], 2],
+
+  // === MỨC KHÁ - CẢM GIÁC TRI GIÁC ===
+  ["\"Cường độ kích thích tối thiểu đủ để gây ra cảm giác\" thể hiện đặc điểm nào?",
+    ["Ngưỡng cảm giác phía trên","Ngưỡng cảm giác phía dưới (ngưỡng tuyệt đối)","Ngưỡng cảm giác sai biệt","Độ nhạy cảm sai biệt"], 1],
+  ["Siêu thị để mặt hàng trẻ em yêu thích ở tầng thấp. Sử dụng quy luật nào?",
+    ["Quy luật ngưỡng cảm giác","Quy luật thích ứng","Quy luật tác động qua lại tương phản","Quy luật tác động qua lại đồng thời"], 0],
+  ["Khi thuyết trình, sinh viên cần nói rõ ràng và đủ nghe. Quy luật nào xuất hiện?",
+    ["Tác động lẫn nhau của các cảm giác","Ngưỡng cảm giác","Thích ứng cảm giác","Cả ba đáp án trên"], 1],
+  ["Diễn giả cần nói rõ ràng, âm lượng 1000 HZ. Quy luật nào xuất hiện?",
+    ["Tác động qua lại của các cảm giác","Ngưỡng cảm giác","Thích ứng của cảm giác","Không đủ thông tin để xác định"], 1],
+  ["Khi mất điện, lúc đầu không nhìn thấy gì, sau nhìn rõ hơn. Quy luật nào?",
+    ["Tác động qua lại của các cảm giác","Ngưỡng cảm giác","Thích ứng của cảm giác","Không đủ thông tin để xác định"], 2],
+  ["Chuyên gia tâm lí khuyên tạo ấn tượng tốt ngay lần gặp đầu. Dựa trên quy luật nào?",
+    ["Quy luật về tính có ý nghĩa","Quy luật tính lựa chọn","Quy luật tổng giác","Quy luật tính ổn định"], 2],
+  ["Hình thức định hướng đầu tiên (mức thấp nhất) trong nhận thức của con người là:",
+    ["Cảm giác","Tri giác","Tư duy","Tưởng tượng"], 0],
+  ["\"Khi sự vật bên ngoài mang hình ảnh tác động vào giác quan ta, cho ta hình ảnh của sự vật\". Là hiện tượng nào?",
+    ["Tri giác","Tư duy","Tưởng tượng","Cảm giác"], 0],
+  ["Kết quả nhận thức chịu ảnh hưởng bởi cảm xúc, trải nghiệm cá nhân là quy luật nào?",
+    ["Tính đối tượng","Tính tổng giác","Tính ý nghĩa","Tính ảo ảnh tri giác"], 1],
+  ["Nhiệt độ điều hòa tốt nhất 25-28 độ khi ngoài trời 40 độ. Dựa trên quy luật nào?",
+    ["Quy luật tương phản của cảm giác","Quy luật tăng tính nhạy cảm","Quy luật thích ứng của cảm giác","Quy luật ngưỡng của cảm giác"], 3],
+  ["Luận điểm nào không đúng về ảo ảnh trong tri giác?",
+    ["Cho hình ảnh tri giác sai lệch về đối tượng","Không cần thiết trong đời sống con người","Phụ thuộc vào bối cảnh tri giác","Ít xảy ra nhưng vẫn là quy luật"], 1],
+
+  // === MỨC KHÁ - TRÍ NHỚ ===
+  ["Khả năng nào của tri giác giúp tạo ra hình ảnh sự vật theo những cấu trúc nhất định?",
+    ["Tính trọn vẹn","Tính kết cấu","Tính tổng hợp","Tính ý nghĩa"], 1],
+  ["Khi đeo đồng hồ nhẹ, không có cảm giác về khối lượng vì:",
+    ["Khối lượng nằm dưới ngưỡng cảm giác phía dưới của tay","Khối lượng nằm trên ngưỡng cảm giác phía dưới","Khối lượng nằm dưới ngưỡng cảm giác phía trên","Khối lượng nằm trên ngưỡng cảm giác phía trên"], 0],
+  ["Tăng âm lượng điện thoại một vạch nhưng không cảm thấy to hơn. Nguyên nhân vì:",
+    ["Mức tăng nằm dưới ngưỡng sai biệt về âm thanh","Mức tăng nằm trên ngưỡng sai biệt về âm thanh","Mức tăng nằm dưới ngưỡng cảm giác phía dưới","Mức tăng nằm trên ngưỡng cảm giác phía trên"], 0],
+  ["Khi hội thoại tiếng Anh, các câu hội thoại được lưu giữ chủ yếu tại:",
+    ["Trí nhớ giác quan","Trí nhớ ngắn hạn","Trí nhớ dài hạn","Tất cả bộ nhớ"], 1],
+  ["Tiêu chí phân loại trí nhớ thành ngắn hạn, dài hạn và thao tác là:",
+    ["Mức độ kéo dài của sự giữ gìn tài liệu","Tính chất tích cực tâm lí nổi bật nhất","Tính chất mục đích của hoạt động","Giác quan đóng vai trò chủ đạo"], 0],
+  ["Ghi nhớ dựa theo dàn ý và mối liên hệ logic giữa các bộ phận tài liệu là loại ghi nhớ nào?",
+    ["Ghi nhớ máy móc","Ghi nhớ có ý nghĩa","Ghi nhớ không chủ định","Tất cả các đáp án trên"], 1],
+  ["Điều nào không đúng với ghi nhớ có ý nghĩa?",
+    ["Ghi nhớ dựa trên sự thông hiểu nội dung","Đảm bảo lĩnh hội tri thức sâu sắc, bền vững","Ghi nhớ bằng cách lặp đi lặp lại nhiều lần giản đơn","Ghi nhớ dựa trên nhận thức mối liên hệ logic"], 2],
+  ["Sinh viên dùng Bản đồ tư duy để ghi nhớ kiến thức. Loại ghi nhớ nào?",
+    ["Ghi nhớ máy móc","Ghi nhớ có ý nghĩa","Ghi nhớ không chủ định","Tất cả các đáp án trên"], 1],
+  ["Mô-da lên 4 tuổi chỉ cần xem một lần là chơi lại chính xác. Tính ưu thế của giác quan nào?",
+    ["Trí nhớ bằng tai","Trí nhớ bằng mắt","Trí nhớ bằng tay","Trí nhớ bằng mũi"], 1],
+  ["Mệnh đề đúng với trí nhớ:",
+    ["Có sử dụng ngôn ngữ","Có sản phẩm là 'biểu tượng của biểu tượng'","Sản phẩm là biểu tượng","Sản phẩm vừa trực quan vừa khái quát"], 2],
+  ["Đặc điểm phù hợp với trí nhớ con người (không phải máy)?",
+    ["Ghi nhớ thông tin được tiêu chuẩn hóa chặt chẽ","Ghi nhớ thông tin không được tiêu chuẩn hóa chặt chẽ","Toàn bộ khối lượng tài liệu được ghi nhớ nguyên vẹn","Toàn bộ thông tin luôn được ghi nhớ nguyên vẹn"], 1],
+
+  // === MỨC KHÁ - TRÍ NHỚ TIẾP ===
+  ["Đặc điểm phù hợp với trí nhớ máy?",
+    ["Ghi nhớ thông tin được tiêu chuẩn hóa chặt chẽ","Ghi nhớ thông tin không được tiêu chuẩn hóa","Quá trình tri giác, giữ gìn, xử lí mang tính chọn lọc","Quá trình tri giác, xử lí nhờ biến đổi hóa-điện trong prôtêin"], 0],
+  ["Loại trí nhớ không chủ định - trường hợp nào đúng?",
+    ["Học sinh nhớ ánh mắt cô giáo khi giảng bài","Nhớ công thức toán bằng cách giải bài tập","Sự đỏ mặt khi nhớ đến kỉ niệm cũ","Nhớ về phong cảnh đẹp, mùi thơm"], 0],
+  ["Loại trí nhớ có chủ định - trường hợp nào đúng?",
+    ["Nhớ công thức toán bằng cách giải bài tập","Nhớ được kiến thức khi làm bài thi","Nhớ ý chính của đoạn tài liệu","Nhớ về các động tác bài thể dục"], 0],
+  ["Phát biểu nào không là đặc trưng của trí nhớ dài hạn?",
+    ["Ký ức được truy cập thường xuyên trở nên mạnh hơn","Các trải nghiệm được lưu giữ ở trạng thái cố định vĩnh viễn","Trí nhớ dài hạn có khả năng lưu giữ thông tin không giới hạn","Ký ức dài hạn được kích hoạt lại trong giấc ngủ"], 1],
+  ["Theo Baddeley và Hitch (1974), trí nhớ làm việc là diễn giải rõ hơn bộ nhớ nào?",
+    ["Trí nhớ giác quan","Trí nhớ ngắn hạn","Trí nhớ dài hạn","Tất cả bộ nhớ"], 1],
+  ["Khi nhẩm số điện thoại để tìm bút ghi. Số điện thoại lưu giữ chủ yếu tại:",
+    ["Trí nhớ giác quan","Trí nhớ ngắn hạn","Trí nhớ dài hạn","Tất cả bộ nhớ"], 1],
+
+  // === MỨC KHÁ - CHÚ Ý (153-156) + TƯ DUY (157-170) ===
+  ["Điều kiện nào cần thiết để duy trì chú ý có chủ định trong giờ học?",
+    ["Cường độ kích thích","Do sự mới lạ và tương phản của các tác nhân kích thích","Sự trái ngược giữa vật kích thích và bối cảnh","Nêu câu hỏi và giải bài tập trong khoảng thời gian nhất định"], 3],
+  ["Máy bán hàng tự động ở nơi đông người, màu sắc nổi bật. Ứng dụng loại chú ý nào?",
+    ["Chú ý sau khi có chủ định","Chú ý trong khi có chủ định","Chú ý không chủ định","Chú ý thiếu chủ định"], 2],
+  ["Sắp xếp chỗ ngồi gọn gàng, tránh tiếng ồn và đồ vật mới lạ. Nhấn mạnh thuộc tính nào của chú ý?",
+    ["Sự di chuyển chú ý","Sự tập trung chú ý","Sự phân phối chú ý","Sự phân tán chú ý"], 1],
+  ["Nhà quảng cáo dùng biển khổ lớn, màu nổi bật ở nơi đông người là hướng vào loại chú ý nào?",
+    ["Chú ý không chủ định","Chú ý có chủ định","Chú ý 'sau khi có chủ định'","Không có chú ý"], 0],
+  ["Mệnh đề đúng với tư duy:",
+    ["Xuất hiện khi dữ liệu rõ ràng, đầy đủ","Xuất hiện khi dữ liệu không rõ, không đầy đủ","Sáng tạo hình ảnh mới bằng thủ thuật đặc biệt","Sản phẩm là các biểu tượng"], 0],
+  ["Tư duy khác tưởng tượng chủ yếu ở đặc điểm nào?",
+    ["Làm cho hoạt động con người có ý thức","Sự chặt chẽ trong cách giải quyết vấn đề","Liên quan đến nhận thức cảm tính","Cả a, b, c"], 1],
+  ["Kỹ sư quan sát sơ đồ nguyên lý thiết bị tìm nguyên nhân sự cố. Loại tư duy nào?",
+    ["Tư duy trực quan hành động","Tư duy trực quan hình ảnh","Tư duy trừu tượng","Tư duy lí luận"], 1],
+  ["Dấu hiệu không phù hợp với quá trình tư duy:",
+    ["Phản ánh những trải nghiệm của cuộc sống","Phản ánh hiện thực bằng con đường gián tiếp","Kết quả mang tính khái quát","Diễn ra theo một quá trình"], 0],
+  ["Trong tư duy, xem xét đúng sai của giả thuyết để khẳng định/phủ định là giai đoạn nào?",
+    ["Xác định và biểu đạt vấn đề","Xuất hiện các liên tưởng","Sàng lọc liên tưởng và hình thành giả thuyết","Kiểm tra giả thuyết"], 3],
+  ["Dùng định luật vật lí giải thích xe máy trượt khi phanh cứng bánh sau. Phản ánh quá trình nào?",
+    ["Quá trình cảm giác","Quá trình tri giác","Quá trình tưởng tượng","Quá trình tư duy"], 3],
+  ["Tư duy trực quan - hành động là loại tư duy giải quyết nhiệm vụ:",
+    ["Nhờ cải tổ thực tế tình huống bằng hành động vận động có thể quan sát","Nhờ cải tổ tình huống chỉ trên bình diện hình ảnh","Dựa trên các khái niệm và mối quan hệ logic nhờ ngôn ngữ","Tất cả các đáp án trên"], 0],
+
+  // === MỨC KHÁ - TƯ DUY TIẾP ===
+  ["Mệnh đề đúng với tưởng tượng:",
+    ["Tạo sản phẩm bằng cách sắp xếp biểu tượng đã có theo cấu trúc mới","Tạo sản phẩm bằng cách sắp xếp khái niệm theo cấu trúc mới","Sản phẩm mang tính chính xác, hợp lý và chặt chẽ","Tìm cái mới bằng các thao tác trí tuệ qua nhiều giai đoạn"], 0],
+  ["Robot lau nhà có cảm biến tránh vật cản. Phương pháp sáng tạo nào là chủ yếu?",
+    ["Thay đổi kích thước số lượng","Liên hợp (đa năng)","Loại suy (mô phỏng)","Nhấn mạnh"], 2],
+  ["Xe tăng lội nước, thủy phi cơ, ô tô bay nhấn mạnh cách tưởng tượng nào?",
+    ["Chắp ghép","Điển hình hóa","Loại suy","Liên hợp"], 3],
+  ["Hình tượng Phật Bà Nghìn mắt Nghìn tay được tạo ra bằng cách nào?",
+    ["Nhấn mạnh","Chắp ghép","Thay đổi kích thước","Điển hình hóa"], 0],
+  ["Hình ảnh \"Nàng tiên cá\" được tạo ra bằng cách nào?",
+    ["Nhấn mạnh","Điển hình hóa","Thay đổi kích thước","Chắp ghép"], 3],
+  ["\"Quả cầu địa lý\" mô phỏng Trái đất được tạo ra bằng cách nào?",
+    ["Nhấn mạnh","Điển hình hóa","Thay đổi kích thước","Chắp ghép"], 2],
+  ["Hình ảnh tranh biếm họa được tạo ra bằng cách nào?",
+    ["Nhấn mạnh","Chắp ghép","Liên hợp","Điển hình hóa"], 0],
+
+  // === MỨC GIỎI ===
+  ["Học sinh chưa bao giờ bỏ dở công việc. Sau lần thất bại vẫn cố tiếp tục. Hiện tượng tâm lí nào?",
+    ["Quá trình tâm lý","Trạng thái tâm lý","Thuộc tính tâm lý","Tất cả các đáp án trên"], 2],
+  ["Cơ chế chủ yếu của sự hình thành và phát triển tâm lí người là:",
+    ["Sự di truyền","Sự chín muồi của tiềm năng sinh vật dưới tác động môi trường","Sự lĩnh hội nền văn hóa xã hội","Sự tự nhận thức, tự giáo dục"], 2],
+  ["Sau 10 năm mất liên lạc, gặp lại bạn cũ thì tính cách của họ sẽ thế nào?",
+    ["Thay đổi hoàn toàn","Thay đổi hoàn toàn theo hoàn cảnh sống","Không thể thay đổi","Có thể thay đổi nhưng tương đối ổn định"], 3],
+  ["Muốn biết tâm lí con người, nhìn vào 'con mắt của người ấy'. Điều đó đúng hay sai?",
+    ["Điều đó đúng","Điều đó sai","Có khi đúng, có khi sai","Không có phương án trả lời"], 2],
+  ["Sự tham gia của yếu tố nào tạo nên tính gián tiếp và khái quát trong tư duy?",
+    ["Ngôn ngữ","Nhận thức cảm tính","Các quá trình tâm lí khác","Kinh nghiệm đã có về sự vật, hiện tượng"], 0],
+  ["Các yếu tố sinh học có vai trò gì trong hình thành và phát triển tâm lí cá nhân?",
+    ["Quyết định trực tiếp","Tác động trực tiếp","Tiền đề","Chủ đạo"], 2],
+  ["Thói quen trong học tập của sinh viên được hình thành dựa trên cơ chế nào của não bộ?",
+    ["Phản xạ không điều kiện","Phản xạ có điều kiện","Lan tỏa và tập trung","Cảm ứng qua lại"], 1],
+  ["Người phục vụ bàn ăn phải quan sát và tìm hiểu để ứng xử phù hợp với khách từ nhiều nền văn hóa. Ứng dụng bản chất nào?",
+    ["Tính chủ thể","Tính khách thể","Tính xã hội – lịch sử","Tất cả đáp án trên"], 0],
+
+  // === MỨC GIỎI - CẢM GIÁC TRI GIÁC ===
+  ["Lắp gương trong thang máy để người dùng không có cảm giác chật. Quy luật nào?",
+    ["Tính có ý nghĩa","Ảo ảnh tri giác","Tính lựa chọn","Tổng giác"], 1],
+  ["Khoảng cách thích hợp nhất từ mắt đến màn hình máy tính 50cm. Phản ánh quy luật nào?",
+    ["Quy luật ngưỡng cảm giác","Quy luật thích ứng","Quy luật tác động qua lại giữa các cảm giác","Tất cả các quy luật trên"], 0],
+  ["Kỹ sư thiết kế bộ phận chỉ báo phải chú ý thời gian lộ sáng. Ứng dụng thuộc quá trình nào?",
+    ["Cảm giác","Tri giác","Tư duy","Tưởng tượng"], 1],
+  ["\"Khi dập nước lạnh lên mặt thì độ tinh mắt của người phi công tăng lên\" là quy luật nào?",
+    ["Sự thích ứng của cảm giác","Ngưỡng cảm giác","Sự tác động lẫn nhau giữa các cảm giác","Tất cả các đáp án trên"], 2],
+  ["\"Công nhân đốt máy xe lửa làm việc hàng giờ dưới nhiệt độ 50-60 độ\" thể hiện quy luật nào?",
+    ["Quy luật ngưỡng cảm giác","Quy luật thích ứng của cảm giác","Quy luật tác động qua lại giữa các cảm giác","Tất cả các đáp án trên"], 1],
+  ["Độ cao không quá 1,5m so với mặt đất để khách quan sát sản phẩm rõ nhất. Dựa trên lý thuyết nào?",
+    ["Tính trọn vẹn","Tính bề ngoài của sự vật","Tính trực tiếp","Tính tích cực, tự giác"], 0],
+  ["Thay đổi ngữ điệu của lời nói cho phù hợp nội dung. Ứng dụng quy luật nào?",
+    ["Thay đổi ngữ điệu lời nói","Lời nói giáo viên rõ ràng, mạch lạc","Tác động đồng thời lên các giác quan để tăng cảm giác","Giới thiệu đồ dùng trực quan kèm lời chỉ dẫn"], 0],
+  ["Con người nhận biết được những cơn đau đầu là nhờ loại cảm giác nào?",
+    ["Cảm giác thăng bằng","Cảm giác cơ thể","Cảm giác rung","Cảm giác vận động"], 1],
+  ["Nhà tuyển dụng chỉ lướt CV vài giây, hãy tập trung từ khóa kỹ năng. Nhấn mạnh quy luật nào?",
+    ["Tính lựa chọn của tri giác","Tính ổn định của tri giác","Tính ý nghĩa của tri giác","Tính ảo ảnh của tri giác"], 0],
+  ["Xem vật 0,05 giây thấy gì sáng; 0,5 giây nhận ra hình dạng. Thuộc quá trình nào?",
+    ["Tri giác","Trí nhớ","Tư duy","Tưởng tượng"], 0],
+  ["Người gầy mặc kẻ ngang, người béo mặc kẻ dọc. Lời khuyên dựa trên quy luật nào?",
+    ["Tính ổn định","Tính có ý nghĩa","Ảo ảnh tri giác","Tổng giác"], 2],
+
+  // === MỨC GIỎI - CHÚ Ý ===
+  ["Phạm Ngũ Lão mải nghĩ việc nước không biết lính đi qua, đến khi bị đâm mới biết. Thuộc tính nào?",
+    ["Sức tập trung chú ý","Sự bền vững của chú ý","Sự phân phối chú ý","Sự di chuyển chú ý"], 0],
+  ["Học sinh mê bài giảng đến mức không nghe tiếng chuông hết giờ. Thuộc tính nào của chú ý?",
+    ["Sức tập trung chú ý","Sự bền vững của chú ý","Sự phân phối chú ý","Sự di chuyển chú ý"], 1],
+  ["\"Người có chú ý là khi nói chuyện vẫn nhìn và nghe tất cả xung quanh\". Thuộc tính nào?",
+    ["Sự di chuyển chú ý","Sự tập trung chú ý","Sự phân phối chú ý","Sự phân tán chú ý"], 2],
+  ["Hoa phải tìm đọc sách, nhưng bị cuốn vào đọc quên ăn, quên ngủ. Loại chú ý nào?",
+    ["Chú ý có sự chủ động","Chú ý sau chủ động","Chú ý có chủ định","Chú ý sau chủ định"], 3],
+  ["Siêu thị bày hàng mới và dễ tiêu thụ tại các điểm giao lối đi. Hiện tượng tâm lý nào?",
+    ["Chú ý sau chủ định","Chú ý trước chủ định","Chú ý không chủ định","Chú ý có chủ định"], 2],
+
+  // === MỨC GIỎI - TRÍ NHỚ ===
+  ["Học sinh nhớ lại 70% tuần đầu, sau một tháng chỉ còn 45%. Quá trình trí nhớ nào?",
+    ["Quá trình giữ gìn","Quá trình nhớ lại","Quá trình ghi nhớ","Sự quên"], 3],
+  ["Giáo viên nhắc một phần công thức, học sinh nhận ra ngay. Quá trình trí nhớ nào?",
+    ["Quá trình nhớ lại","Quá trình giữ gìn","Quá trình ghi nhớ","Quá trình nhận lại"], 3],
+  ["Yêu cầu học sinh lập dàn ý bài khóa và trình bày lại. Giáo dục năng lực nào?",
+    ["Trí nhớ","Tư duy","Tưởng tượng","Ngôn ngữ"], 0],
+  ["Điều nào không đúng với sự quên?",
+    ["Quên cũng diễn ra theo quy luật","Quên là xóa bỏ hoàn toàn 'dấu vết' tài liệu","Quên cũng là hiện tượng hữu ích","Ở giai đoạn đầu tốc độ quên lớn, sau giảm dần"], 1],
+  ["Người nghệ sỹ múa luyện tập các cử động chân-tay hình thành kỹ năng. Loại trí nhớ nào?",
+    ["Trí nhớ vận động","Trí nhớ hình ảnh","Trí nhớ cảm xúc","Trí nhớ từ ngữ - logic"], 0],
+  ["Diễn viên học thuộc vai trong một ngày, diễn xong thì quên ngay. Loại trí nhớ nào?",
+    ["Trí nhớ ngắn hạn","Trí nhớ dài hạn","Trí nhớ chủ định","Trí nhớ không xuất hiện"], 0],
+  ["Dựa vào mức độ kéo dài giữ gìn tài liệu - trường hợp nào đúng với trí nhớ dài hạn?",
+    ["Nhớ được kiến thức khi làm bài thi","Nhớ ý chính của đoạn tài liệu","Học sinh nhớ ánh mắt cô giáo giảng bài","Nhớ công thức toán bằng cách giải nhiều bài tập"], 3],
+  ["Dựa vào mức độ kéo dài giữ gìn - trường hợp nào đúng với trí nhớ ngắn hạn?",
+    ["Nhớ giờ bắt đầu và địa điểm buổi nói chuyện","Nhớ được kiến thức khi làm bài thi","Nhớ ý chính của đoạn tài liệu","Học sinh nhớ ánh mắt cô giáo giảng bài"], 1],
+
+  // === MỨC GIỎI - TƯ DUY TƯỞNG TƯỢNG ===
+  ["Trẻ em làm toán bằng cách dùng mắt quan sát đối tượng cụ thể. Loại tư duy nào?",
+    ["Tư duy trực quan – hình ảnh","Tư duy trừu tượng","Tư duy khuôn mẫu (angôrit)","Tư duy sáng tạo (ơrixtic)"], 0],
+  ["Hình ảnh người ông chưa bao giờ gặp hiện về qua câu chuyện của bà. Hình ảnh tâm lí nào?",
+    ["Trí nhớ","Tư duy","Tưởng tượng","Tri giác"], 2],
+  ["Các thao tác tư duy (phân tích, tổng hợp, so sánh...) thường diễn ra như thế nào?",
+    ["Linh hoạt tùy theo nhiệm vụ tư duy","Thực hiện đúng trình tự xác định","Thực hiện đầy đủ tất cả thao tác","Mỗi thao tác tiến hành độc lập"], 0],
+  ["Người mẹ nhận ra con trai có hành động khác thường và nghĩ nó bị ốm. Đặc điểm nào của tư duy?",
+    ["Tính 'có vấn đề' của tư duy","Tính gián tiếp của tư duy","Tính trực tiếp của tư duy","Tính trừu tượng và khái quát của tư duy"], 1],
+  ["Đọc bài khóa hai lần rồi yêu cầu học sinh viết lại. Giáo dục năng lực nào?",
+    ["Năng lực trí nhớ","Năng lực tư duy","Năng lực tưởng tượng","Năng lực quan sát"], 0],
+  ["AI giúp máy tính thay thế con người nhưng không thể thực hiện chức năng nào?",
+    ["Định hướng","Điều khiển","Điều chỉnh","Tạo động lực"], 3],
+  ["Yêu cầu học sinh chỉ ra giống và khác nhau của khí hậu châu Âu và châu Á. Giáo dục năng lực nào?",
+    ["Trí nhớ","Tư duy","Tưởng tượng","Óc quan sát"], 1],
+  ["Yêu cầu học sinh căn cứ mô tả bài học để hình dung bức tranh thiên nhiên. Giáo dục năng lực nào?",
+    ["Trí nhớ","Tư duy","Tưởng tượng","Óc quan sát"], 2],
+];
+
+// ==================== QUIZ SETS ====================
+const QUIZ_SIZE = 30;
+const NUM_SETS = 7;
+const quizSets = [];
+for (let i = 0; i < NUM_SETS; i++) {
+  const chunk = allQuestions.slice(i * QUIZ_SIZE, (i + 1) * QUIZ_SIZE);
+  if (chunk.length === 0) continue;
+  quizSets.push({
+    id: i + 1,
+    name: `Bộ Quiz ${i + 1}`,
+    questions: chunk,
+    startIndex: i * QUIZ_SIZE
+  });
+}
+
+const quizTopics = [
+  ["Công dụng TL","Cảm giác","Tri giác"],
+  ["Tri giác","Chú ý","Trí nhớ"],
+  ["Trí nhớ","Tư duy","Tưởng tượng"],
+  ["Tưởng tượng","Mức Khá"],
+  ["Mức Khá","Cảm giác Khá"],
+  ["Chú ý Khá","Tư duy Khá","Mức Giỏi"],
+  ["Mức Giỏi","Cảm giác Giỏi","Tư duy Giỏi"],
+];
+
+// ==================== STATE ====================
+let currentSet = null;
+let currentQ = 0;
+let answers = [];
+let reviewed = false;
+let scores = {};
+
+// ==================== INIT ====================
+function init() {
+  const grid = document.getElementById('quiz-grid');
+  grid.innerHTML = '';
+  quizSets.forEach((set, i) => {
+    const card = document.createElement('div');
+    card.className = 'quiz-card';
+    card.onclick = () => startQuiz(i);
+    const sc = scores[i];
+    const badgeHtml = sc != null ? `<div class="quiz-score-badge show ${sc>=80?'badge-good':sc>=50?'badge-mid':'badge-bad'}">${sc}%</div>` : '';
+    card.innerHTML = `
+      ${badgeHtml}
+      <div class="quiz-num">0${i+1}</div>
+      <div class="quiz-name">${set.name}</div>
+      <div class="quiz-info">${set.questions.length} câu · Câu ${set.startIndex+1}–${set.startIndex+set.questions.length}</div>
+      <div class="quiz-topics">${(quizTopics[i]||[]).map(t=>`<span class="topic-tag">${t}</span>`).join('')}</div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+// ==================== QUIZ LOGIC ====================
+function startQuiz(idx) {
+  currentSet = idx;
+  currentQ = 0;
+  answers = new Array(quizSets[idx].questions.length).fill(null);
+  reviewed = false;
+  document.getElementById('home-screen').style.display = 'none';
+  document.getElementById('result-screen').style.display = 'none';
+  document.getElementById('quiz-screen').style.display = 'block';
+  document.getElementById('quiz-title-bar').textContent = quizSets[idx].name;
+  renderQNav();
+  renderQ();
+}
+
+function renderQNav() {
+  const nav = document.getElementById('q-nav');
+  nav.innerHTML = '';
+  const total = quizSets[currentSet].questions.length;
+  for (let i = 0; i < total; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'q-dot' + (answers[i]!==null?' answered':'') + (i===currentQ?' current':'');
+    dot.textContent = i+1;
+    dot.onclick = () => { currentQ = i; renderQ(); renderQNav(); };
+    nav.appendChild(dot);
+  }
+}
+
+function renderQ() {
+  const set = quizSets[currentSet];
+  const q = set.questions[currentQ];
+  const total = set.questions.length;
+
+  document.getElementById('q-number').textContent = `Câu ${currentQ+1} / ${total}`;
+  document.getElementById('q-text').textContent = q[0];
+  document.getElementById('quiz-prog-info').textContent = `${answers.filter(a=>a!==null).length} / ${total} đã trả lời`;
+  document.getElementById('progress-fill').style.width = ((currentQ+1)/total*100)+'%';
+  document.getElementById('btn-prev').disabled = currentQ === 0;
+
+  const opts = document.getElementById('q-options');
+  opts.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  const hasAnswered = answers[currentQ] !== null;
+  const correctIdx = q[2];
+  q[1].forEach((opt, i) => {
+    const btn = document.createElement('button');
+    let cls = 'option-btn';
+    if (hasAnswered) {
+      if (i === correctIdx) cls += ' correct';
+      else if (i === answers[currentQ] && i !== correctIdx) cls += ' wrong';
+    }
+    btn.className = cls;
+    btn.disabled = hasAnswered;
+    btn.innerHTML = `<span class="opt-letter">${letters[i]}</span><span>${opt}</span>`;
+    if (!hasAnswered) btn.onclick = () => selectAnswer(i);
+    opts.appendChild(btn);
+  });
+
+  // Feedback message
+  let fb = document.getElementById('q-feedback');
+  if (fb) fb.remove();
+  if (hasAnswered) {
+    const isRight = answers[currentQ] === correctIdx;
+    fb = document.createElement('div');
+    fb.id = 'q-feedback';
+    fb.style.cssText = `margin-top:16px;padding:12px 16px;border-radius:10px;font-size:14px;font-weight:600;`;
+    if (isRight) {
+      fb.style.background = 'rgba(34,197,94,.12)';
+      fb.style.color = 'var(--green)';
+      fb.textContent = '✅ Chính xác!';
+    } else {
+      fb.style.background = 'rgba(239,68,68,.12)';
+      fb.style.color = 'var(--red)';
+      fb.textContent = `❌ Sai rồi. Đáp án đúng là ${letters[correctIdx]}.`;
+    }
+    document.getElementById('q-card').appendChild(fb);
+  }
+
+  document.getElementById('btn-next').textContent = currentQ < total-1 ? 'Tiếp →' : 'Câu cuối';
+  renderQNav();
+}
+
+function selectAnswer(idx) {
+  answers[currentQ] = idx;
+  renderQ();
+}
+
+function prevQ() {
+  if (currentQ > 0) { currentQ--; renderQ(); }
+}
+
+function nextQ() {
+  if (currentQ < quizSets[currentSet].questions.length - 1) { currentQ++; renderQ(); }
+}
+
+function submitQuiz() {
+  const unanswered = answers.filter(a=>a===null).length;
+  if (unanswered > 0) {
+    if (!confirm(`Bạn còn ${unanswered} câu chưa trả lời. Bạn có muốn nộp bài không?`)) return;
+  }
+  showResult();
+}
+
+function showResult() {
+  const set = quizSets[currentSet];
+  let correct = 0, wrong = 0, skip = 0;
+  answers.forEach((ans, i) => {
+    if (ans === null) skip++;
+    else if (ans === set.questions[i][2]) correct++;
+    else wrong++;
+  });
+  const total = set.questions.length;
+  const pct = Math.round(correct/total*100);
+  scores[currentSet] = pct;
+
+  document.getElementById('quiz-screen').style.display = 'none';
+  document.getElementById('result-screen').style.display = 'block';
+  document.getElementById('res-score').textContent = pct+'%';
+  document.getElementById('res-label').textContent = pct>=80?'🎉 Xuất sắc!':pct>=65?'👍 Khá tốt!':pct>=50?'📚 Cần ôn thêm':'💪 Hãy cố gắng hơn!';
+  document.getElementById('res-sub').textContent = set.name + ' · ' + correct + '/' + total + ' câu đúng';
+  document.getElementById('stat-correct').textContent = correct;
+  document.getElementById('stat-wrong').textContent = wrong;
+  document.getElementById('stat-skip').textContent = skip;
+  document.getElementById('review-section').innerHTML = '';
+  reviewed = false;
+}
+
+function showReview() {
+  if (reviewed) { document.getElementById('review-section').innerHTML = ''; reviewed = false; return; }
+  reviewed = true;
+  const set = quizSets[currentSet];
+  const letters = ['A','B','C','D'];
+  let html = '<h3>📋 Chi tiết đáp án</h3>';
+  set.questions.forEach((q, i) => {
+    const ans = answers[i];
+    const correct = q[2];
+    const isRight = ans === correct;
+    html += `<div class="review-item ${isRight?'correct-item':'wrong-item'}">
+      <div class="review-q">${i+1}. ${q[0]}</div>`;
+    if (ans !== null) {
+      html += `<div class="review-ans ${isRight?'correct-ans':'wrong-ans'}">Bạn chọn: <span>${letters[ans]}. ${q[1][ans]}</span></div>`;
+    } else {
+      html += `<div class="review-ans" style="color:var(--yellow)">Bỏ qua</div>`;
+    }
+    if (!isRight) {
+      html += `<div class="review-ans correct-ans">Đáp án đúng: <span>${letters[correct]}. ${q[1][correct]}</span></div>`;
+    }
+    html += '</div>';
+  });
+  document.getElementById('review-section').innerHTML = html;
+}
+
+function retakeQuiz() {
+  startQuiz(currentSet);
+  document.getElementById('result-screen').style.display = 'none';
+}
+
+function goHome() {
+  document.getElementById('quiz-screen').style.display = 'none';
+  document.getElementById('result-screen').style.display = 'none';
+  document.getElementById('home-screen').style.display = 'block';
+  init();
+}
+
+init();
+</script>
+</body>
+</html>
