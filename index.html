@@ -52,6 +52,15 @@
   }
   .header-title { font-size: 18px; font-weight: 700; }
   .header-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .sound-toggle {
+    margin-left: auto;
+    width: 40px; height: 40px; flex-shrink: 0;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; transition: all .15s; color: var(--text);
+  }
+  .sound-toggle:hover { border-color: var(--accent); }
 
   /* MAIN LAYOUT */
   .container { max-width: 960px; margin: 0 auto; padding: 32px 20px; }
@@ -259,6 +268,7 @@
     <div class="header-title">Tâm Lý Học Ứng Dụng</div>
     <div class="header-sub">206 Câu Trắc Nghiệm · 7 Bộ Quiz</div>
   </div>
+  <button class="sound-toggle" id="sound-toggle" onclick="toggleSound()" title="Bật/tắt âm thanh">🔊</button>
 </div>
 
 <!-- HOME -->
@@ -824,6 +834,69 @@ let answers = [];
 let reviewed = false;
 let scores = {};
 
+// ==================== SOUND ====================
+let soundEnabled = localStorage.getItem('quizSoundEnabled') !== 'false';
+let audioCtx = null;
+
+function getAudioCtx() {
+  if (!audioCtx) {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    audioCtx = new AC();
+  }
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+function playTone(freq, duration, type, delay, gainVal) {
+  if (!soundEnabled) return;
+  const ctx = getAudioCtx();
+  if (!ctx) return;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type || 'sine';
+  osc.frequency.value = freq;
+  const t0 = ctx.currentTime + (delay || 0);
+  gain.gain.setValueAtTime(0, t0);
+  gain.gain.linearRampToValueAtTime(gainVal || 0.15, t0 + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.001, t0 + duration);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(t0);
+  osc.stop(t0 + duration + 0.02);
+}
+
+function playCorrectSound() {
+  playTone(880, 0.12, 'sine', 0, 0.15);
+  playTone(1318.5, 0.2, 'sine', 0.1, 0.15);
+}
+
+function playWrongSound() {
+  playTone(220, 0.28, 'sawtooth', 0, 0.1);
+  playTone(174.6, 0.32, 'sawtooth', 0.08, 0.09);
+}
+
+function playClickSound() {
+  playTone(700, 0.05, 'square', 0, 0.04);
+}
+
+function playCompleteSound() {
+  const notes = [523.25, 659.25, 783.99, 1046.5];
+  notes.forEach((f, i) => playTone(f, 0.22, 'sine', i * 0.12, 0.13));
+}
+
+function toggleSound() {
+  soundEnabled = !soundEnabled;
+  localStorage.setItem('quizSoundEnabled', soundEnabled);
+  updateSoundBtn();
+  if (soundEnabled) playClickSound();
+}
+
+function updateSoundBtn() {
+  const btn = document.getElementById('sound-toggle');
+  if (btn) btn.textContent = soundEnabled ? '🔊' : '🔇';
+}
+
 // ==================== INIT ====================
 function init() {
   const grid = document.getElementById('quiz-grid');
@@ -928,15 +1001,18 @@ function renderQ() {
 
 function selectAnswer(idx) {
   answers[currentQ] = idx;
+  const correctIdx = quizSets[currentSet].questions[currentQ][2];
+  if (idx === correctIdx) playCorrectSound();
+  else playWrongSound();
   renderQ();
 }
 
 function prevQ() {
-  if (currentQ > 0) { currentQ--; renderQ(); }
+  if (currentQ > 0) { currentQ--; playClickSound(); renderQ(); }
 }
 
 function nextQ() {
-  if (currentQ < quizSets[currentSet].questions.length - 1) { currentQ++; renderQ(); }
+  if (currentQ < quizSets[currentSet].questions.length - 1) { currentQ++; playClickSound(); renderQ(); }
 }
 
 function submitQuiz() {
@@ -948,6 +1024,7 @@ function submitQuiz() {
 }
 
 function showResult() {
+  playCompleteSound();
   const set = quizSets[currentSet];
   let correct = 0, wrong = 0, skip = 0;
   answers.forEach((ans, i) => {
@@ -1009,6 +1086,7 @@ function goHome() {
 }
 
 init();
+updateSoundBtn();
 </script>
 </body>
 </html>
